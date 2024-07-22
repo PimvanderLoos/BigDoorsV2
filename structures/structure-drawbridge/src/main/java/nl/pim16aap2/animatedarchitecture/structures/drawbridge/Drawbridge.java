@@ -81,14 +81,16 @@ public class Drawbridge extends AbstractStructure implements IHorizontalAxisAlig
         final Cuboid cuboid = getCuboid();
         final Vector3Di rotationPoint = getRotationPoint();
 
-        final double angle;
-        if (movementDirection == MovementDirection.NORTH || movementDirection == MovementDirection.WEST)
-            angle = quarterCircles * -MathUtil.HALF_PI;
-        else if (movementDirection == MovementDirection.SOUTH || movementDirection == MovementDirection.EAST)
-            angle = quarterCircles * MathUtil.HALF_PI;
-        else
+        final double angle = quarterCircles * switch (movementDirection)
         {
-            log.atSevere().log("Invalid open direction '%s' for door: %d", movementDirection.name(), getUid());
+            case NORTH, WEST -> -MathUtil.HALF_PI;
+            case SOUTH, EAST -> MathUtil.HALF_PI;
+            default -> 0D;
+        };
+
+        if (angle == 0D)
+        {
+            log.atSevere().log("Invalid open direction '%s' for drawbridge: %d", movementDirection.name(), getUid());
             return Optional.empty();
         }
 

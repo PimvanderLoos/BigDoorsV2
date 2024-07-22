@@ -32,7 +32,8 @@ import java.util.stream.Stream;
 @Flogger
 public class BigDoor extends AbstractStructure
 {
-    @EqualsAndHashCode.Exclude @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final ReentrantReadWriteLock lock;
 
@@ -70,8 +71,8 @@ public class BigDoor extends AbstractStructure
     public MovementDirection getCycledOpenDirection()
     {
         return getOpenDir().equals(MovementDirection.CLOCKWISE) ?
-               MovementDirection.COUNTERCLOCKWISE :
-               MovementDirection.CLOCKWISE;
+            MovementDirection.COUNTERCLOCKWISE :
+            MovementDirection.CLOCKWISE;
     }
 
     @Override
@@ -86,12 +87,15 @@ public class BigDoor extends AbstractStructure
     public Optional<Cuboid> getPotentialNewCoordinates()
     {
         final MovementDirection movementDirection = getCurrentToggleDir();
-        final double angle =
-            movementDirection == MovementDirection.CLOCKWISE ? MathUtil.HALF_PI :
-            movementDirection == MovementDirection.COUNTERCLOCKWISE ? -MathUtil.HALF_PI :
-            0.0D;
 
-        if (angle == 0.0D)
+        final double angle = quarterCircles * switch (movementDirection)
+        {
+            case CLOCKWISE -> MathUtil.HALF_PI;
+            case COUNTERCLOCKWISE -> -MathUtil.HALF_PI;
+            default -> 0D;
+        };
+
+        if (angle == 0D)
         {
             log.atSevere().log("Invalid movement direction '%s' for door: %d", movementDirection.name(), getUid());
             return Optional.empty();
